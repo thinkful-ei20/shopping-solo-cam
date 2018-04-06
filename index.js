@@ -1,12 +1,15 @@
 'use strict';
 /* global $ */
 
-const STORE = [
-  {name: 'apples', checked: false},
-  {name: 'oranges', checked: false},
-  {name: 'milk', checked: true},
-  {name: 'bread', checked: false}
-];
+const STORE = {
+  items: [
+    {name: 'apples', checked: false},
+    {name: 'oranges', checked: false},
+    {name: 'milk', checked: true},
+    {name: 'bread', checked: false}
+  ],
+  filter: 'none',
+};
 
 
 function generateItemElement(item, itemIndex, template) {
@@ -24,25 +27,22 @@ function generateItemElement(item, itemIndex, template) {
     </li>`;
 }
 
-
 function generateShoppingItemsString(shoppingList) {
   console.log('Generating shopping list element');
 
   const items = shoppingList.map((item, index) => generateItemElement(item, index));
-  
+  // console.log(items);
   return items.join('');
 }
-
 
 function renderShoppingList() {
   // render the shopping list in the DOM
   console.log('`renderShoppingList` ran');
-  const shoppingListItemsString = generateShoppingItemsString(STORE);
+  const shoppingListItemsString = generateShoppingItemsString(STORE.items);
 
   // insert that HTML into the DOM
   $('.js-shopping-list').html(shoppingListItemsString);
 }
-
 
 function addItemToShoppingList(itemName) {
   console.log(`Adding "${itemName}" to shopping list`);
@@ -62,9 +62,8 @@ function handleNewItemSubmit() {
 
 function toggleCheckedForListItem(itemIndex) {
   console.log('Toggling checked property for item at index ' + itemIndex);
-  STORE[itemIndex].checked = !STORE[itemIndex].checked;
+  STORE.items[itemIndex].checked = !STORE.items[itemIndex].checked;
 }
-
 
 function getItemIndexFromElement(item) {
   const itemIndexString = $(item)
@@ -73,11 +72,44 @@ function getItemIndexFromElement(item) {
   return parseInt(itemIndexString, 10);
 }
 
+// Capture if checkbox is checked
+function isCheckBoxChecked() {
+  // if the checkbox is checked
+  // change the filter in the STORE, from 'none' to 'filtered'
+  $('#checkBox').on('click', event => {
+    let checkBox = $(event.currentTarget);
+    // console.log(checkBoxValue);
+    let checkBoxValue = checkBox[0].checked;
+    if (checkBoxValue === true) {
+      STORE.filter = 'checked';
+    } else {
+      STORE.filter = 'none';
+    }
+    console.log(STORE.filter);
+  });
+}
+
+function getCheckedItems() {
+  
+}
+
+// handleDisplayingCheckedItems is responsible for displaying(in the ul) items which are checked
+function handleDisplayingCheckedItems() {
+  
+}
+
+// handleItemCheckClicked is for the <li>'s
 function handleItemCheckClicked() {
+  // targets <ul>, event listener(with delegation) on click
   $('.js-shopping-list').on('click', '.js-item-toggle', event => {
+    // logs the function has ran
     console.log('`handleItemCheckClicked` ran');
+    // captures the value of the event's current target's index(where it is in the list(STORE))
     const itemIndex = getItemIndexFromElement(event.currentTarget);
+    // console.log(itemIndex); // Logs index in STORE
+    // Modifies the STORE
     toggleCheckedForListItem(itemIndex);
+    // Renders the shoppingList
     renderShoppingList();
   });
 }
@@ -93,9 +125,8 @@ function deleteListItem(itemIndex) {
   // of 1. this has the effect of removing the desired item, and shifting all of the
   // elements to the right of `itemIndex` (if any) over one place to the left, so we
   // don't have an empty space in our list.
-  STORE.splice(itemIndex, 1);
+  STORE.items.splice(itemIndex, 1);
 }
-
 
 function handleDeleteItemClicked() {
   // like in `handleItemCheckClicked`, we use event delegation
@@ -118,6 +149,8 @@ function handleShoppingList() {
   handleNewItemSubmit();
   handleItemCheckClicked();
   handleDeleteItemClicked();
+  getCheckedItems();
+  isCheckBoxChecked();
 }
 
 // when the page loads, call `handleShoppingList`
