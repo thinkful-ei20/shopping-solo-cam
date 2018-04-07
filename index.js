@@ -1,13 +1,15 @@
 'use strict';
 /* global $ */
 
-const STORE = [
-  {name: 'apples', checked: false},
-  {name: 'oranges', checked: false},
-  {name: 'milk', checked: true},
-  {name: 'bread', checked: false}
-];
-
+const STORE = {
+  items:[ 
+    {name: 'apples', checked: false},
+    {name: 'oranges', checked: false},
+    {name: 'milk', checked: true},
+    {name: 'bread', checked: false}
+  ],
+  showOnlyUncrossedItems: false, 
+};
 
 function generateItemElement(item, itemIndex, template) {
   return `
@@ -37,7 +39,18 @@ function generateShoppingItemsString(shoppingList) {
 function renderShoppingList() {
   // render the shopping list in the DOM
   console.log('`renderShoppingList` ran');
-  const shoppingListItemsString = generateShoppingItemsString(STORE);
+  // filtered items = STORE.items filtered over to return a new array of items
+  // the new array contains the items that are NOT checked
+  let filteredItems;
+  if (STORE.showOnlyUncrossedItems) {
+    filteredItems = STORE.items.filter(function(item){
+      return item.checked === false;
+    }); 
+  } else {
+    filteredItems = STORE.items;
+  }
+
+  const shoppingListItemsString = generateShoppingItemsString(filteredItems);
 
   // insert that HTML into the DOM
   $('.js-shopping-list').html(shoppingListItemsString);
@@ -46,7 +59,7 @@ function renderShoppingList() {
 
 function addItemToShoppingList(itemName) {
   console.log(`Adding "${itemName}" to shopping list`);
-  STORE.push({name: itemName, checked: false});
+  STORE.items.push({name: itemName, checked: false});
 }
 
 function handleNewItemSubmit() {
@@ -62,7 +75,7 @@ function handleNewItemSubmit() {
 
 function toggleCheckedForListItem(itemIndex) {
   console.log('Toggling checked property for item at index ' + itemIndex);
-  STORE[itemIndex].checked = !STORE[itemIndex].checked;
+  STORE.items[itemIndex].checked = !STORE.items[itemIndex].checked;
 }
 
 
@@ -71,6 +84,17 @@ function getItemIndexFromElement(item) {
     .closest('.js-item-index-element')
     .attr('data-item-index');
   return parseInt(itemIndexString, 10);
+}
+
+// Handles the checkbox key/value in STORE
+function handleFilterCheckBoxChecked() {
+  // Reference the checkbox input, add event listener on change event
+  $('#checkBox').change(event => {
+    // When checkbox is checked
+    // Set STORE.showOnlyUncrossedITems to the opposite
+    STORE.showOnlyUncrossedItems = !STORE.showOnlyUncrossedItems;
+    renderShoppingList();
+  }); 
 }
 
 function handleItemCheckClicked() {
@@ -93,7 +117,7 @@ function deleteListItem(itemIndex) {
   // of 1. this has the effect of removing the desired item, and shifting all of the
   // elements to the right of `itemIndex` (if any) over one place to the left, so we
   // don't have an empty space in our list.
-  STORE.splice(itemIndex, 1);
+  STORE.items.splice(itemIndex, 1);
 }
 
 
@@ -118,6 +142,7 @@ function handleShoppingList() {
   handleNewItemSubmit();
   handleItemCheckClicked();
   handleDeleteItemClicked();
+  handleFilterCheckBoxChecked();
 }
 
 // when the page loads, call `handleShoppingList`
