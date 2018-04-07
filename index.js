@@ -3,28 +3,34 @@
 
 const STORE = {
   items:[ 
-    {name: 'apples', checked: false},
-    {name: 'oranges', checked: false},
-    {name: 'milk', checked: true},
-    {name: 'bread', checked: false}
+    {name: 'apples', checked: false, isEditing: false},
+    {name: 'oranges', checked: false, isEditing: false},
+    {name: 'milk', checked: true, isEditing: false},
+    {name: 'bread', checked: false, isEditing: false}
   ],
   showOnlyUncrossedItems: false, 
   searchTerm: '',
 };
 
 function generateItemElement(item, itemIndex, template) {
-  return `
-    <li class="js-item-index-element" data-item-index="${itemIndex}">
-      <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>
-      <div class="shopping-item-controls">
-        <button class="shopping-item-toggle js-item-toggle">
-            <span class="button-label">check</span>
-        </button>
-        <button class="shopping-item-delete js-item-delete">
-            <span class="button-label">delete</span>
-        </button>
-      </div>
-    </li>`;
+  let itemHtml = `<li class="js-item-index-element" data-item-index="${itemIndex}">`;
+  if(item.isEditing === true) {
+    itemHtml += `<input name="itemTitle" class="js-item-textbox" type="text" autofocus="autofocus" value="${item.name}">`;
+  } else {
+    itemHtml += `<span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>`;
+  }
+  itemHtml += 
+  `<div class="shopping-item-controls">
+    <button class="shopping-item-toggle js-item-toggle">
+      <span class="button-label">check</span>
+    </button>
+    <button class="shopping-item-delete js-item-delete">
+      <span class="button-label">delete</span>
+     </button>
+    </div>
+   </li>`;
+  
+  return itemHtml;
 }
 
 
@@ -51,10 +57,11 @@ function renderShoppingList() {
     filteredItems = STORE.items;
   }
 
+  // 
   if (STORE.searchTerm !== '') {
     filteredItems = filteredItems.filter(function(item) {
-      return item.name.includes(STORE.searchTerm);
-    });    
+      return item.name.toLowerCase().includes(STORE.searchTerm.toLowerCase());
+    });     
   }
 
   const shoppingListItemsString = generateShoppingItemsString(filteredItems);
@@ -66,7 +73,7 @@ function renderShoppingList() {
 
 function addItemToShoppingList(itemName) {
   console.log(`Adding "${itemName}" to shopping list`);
-  STORE.items.push({name: itemName, checked: false});
+  STORE.items.push({name: itemName, checked: false, isEditing: false});
 }
 
 function handleNewItemSubmit() {
@@ -122,7 +129,22 @@ function handleItemCheckClicked() {
   });
 }
 
+function handleTitleEdit() {
+  $('.js-shopping-list').on('click', '.js-shopping-item', event => {
+    const itemIndex = getItemIndexFromElement(event.currentTarget);
+    STORE.items[itemIndex].isEditing = true;
+    renderShoppingList();
+  });
+}
 
+function handleTitleUneditBlur() {
+  $('.js-shopping-list').on('blur', '.js-item-textbox', event => {
+    const itemIndex = getItemIndexFromElement(event.currentTarget);
+    STORE.items[itemIndex].isEditing = false;
+    STORE.items[itemIndex].name = $(event.currentTarget).val();
+    renderShoppingList();
+  });
+}
 
 // name says it all. responsible for deleting a list item.
 function deleteListItem(itemIndex) {
@@ -162,6 +184,8 @@ function handleShoppingList() {
   handleDeleteItemClicked();
   handleFilterCheckBoxChecked();
   handleSearchTermChanged();
+  handleTitleEdit();
+  handleTitleUneditBlur();
 }
 
 // when the page loads, call `handleShoppingList`
