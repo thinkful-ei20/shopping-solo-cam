@@ -9,7 +9,6 @@ const STORE = {
     {name: 'bread', checked: false}
   ],
   filter: 'none',
-  filteredItems: [],
 };
 
 
@@ -39,13 +38,8 @@ function generateShoppingItemsString(shoppingList) {
 function renderShoppingList() {
   // render the shopping list in the DOM
   console.log('`renderShoppingList` ran');
-  let shoppingListItemsString;
+  const shoppingListItemsString = generateShoppingItemsString(STORE.items);
 
-  if (STORE.filter === 'checked') {
-    shoppingListItemsString = generateShoppingItemsString(STORE.filteredItems);
-  } else {
-    shoppingListItemsString = generateShoppingItemsString(STORE.items);
-  }
   // insert that HTML into the DOM
   $('.js-shopping-list').html(shoppingListItemsString);
 }
@@ -92,34 +86,17 @@ function isCheckBoxChecked() {
       STORE.filter = 'none';
     }
     console.log(STORE.filter);
-    renderShoppingList(STORE.filteredItems);
   });
 }
 
-function generateCheckedItems() {
-  // Iterate through STORE.items to check for values of checked: true/false
-  let listItems = [...STORE.items];
-  STORE.filteredItems = listItems.filter(item => {
-    if(item.checked === true) {
-      return item;
-    } 
-  });
-  console.log(STORE.filteredItems);
-  renderShoppingList(STORE.filteredItems);
+function getCheckedItems() {
+  
 }
 
 // handleDisplayingCheckedItems is responsible for displaying(in the ul) items which are checked
-// function displayingCheckFilteredItems(items) {
-//   let filter = STORE.filter;
-//   let checkedItems = generateCheckedItems();
-//   console.log('checkedItems:', checkedItems);
-//   let filteredItems = generateShoppingItemsString(checkedItems);
-//   console.log(filteredItems);
+function handleDisplayingCheckedItems() {
   
-//   if(filter === 'checked') {
-//     renderShoppingList(filteredItems);  
-//   }
-// }
+}
 
 // handleItemCheckClicked is for the <li>'s
 function handleItemCheckClicked() {
@@ -172,9 +149,8 @@ function handleShoppingList() {
   handleNewItemSubmit();
   handleItemCheckClicked();
   handleDeleteItemClicked();
-  generateCheckedItems();
+  getCheckedItems();
   isCheckBoxChecked();
-  // displayingCheckFilteredItems();
 }
 
 // when the page loads, call `handleShoppingList`
