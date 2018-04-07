@@ -108,6 +108,8 @@ function handleNewItemSubmit() {
 
     // Invoke the function which adds the item to the STORE object
     addItemToShoppingList(newItemName);
+
+    $('.js-shopping-list-entry').val('');
     // render the DOM
     renderShoppingList();
   });
