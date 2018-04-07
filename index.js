@@ -9,6 +9,7 @@ const STORE = {
     {name: 'bread', checked: false}
   ],
   showOnlyUncrossedItems: false, 
+  searchTerm: '',
 };
 
 function generateItemElement(item, itemIndex, template) {
@@ -48,6 +49,12 @@ function renderShoppingList() {
     }); 
   } else {
     filteredItems = STORE.items;
+  }
+
+  if (STORE.searchTerm !== '') {
+    filteredItems = filteredItems.filter(function(item) {
+      return item.name.includes(STORE.searchTerm);
+    });    
   }
 
   const shoppingListItemsString = generateShoppingItemsString(filteredItems);
@@ -97,6 +104,15 @@ function handleFilterCheckBoxChecked() {
   }); 
 }
 
+function handleSearchTermChanged() {
+  // keyup renders every keystroke
+  $('#searchTerm').on('keyup', event => {
+    STORE.searchTerm = $('#searchTerm').val();
+    console.log(STORE.searchTerm);
+    renderShoppingList();
+  });
+}
+
 function handleItemCheckClicked() {
   $('.js-shopping-list').on('click', '.js-item-toggle', event => {
     console.log('`handleItemCheckClicked` ran');
@@ -105,6 +121,8 @@ function handleItemCheckClicked() {
     renderShoppingList();
   });
 }
+
+
 
 // name says it all. responsible for deleting a list item.
 function deleteListItem(itemIndex) {
@@ -143,6 +161,7 @@ function handleShoppingList() {
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleFilterCheckBoxChecked();
+  handleSearchTermChanged();
 }
 
 // when the page loads, call `handleShoppingList`
